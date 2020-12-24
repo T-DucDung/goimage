@@ -21,7 +21,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(10 << 20)
 
 	// Get handler for filename, size and headers
-	file, handler, err := r.FormFile("myFile")
+	file, handler, err := r.FormFile("file")
 	if err != nil {
 		fmt.Println("Error Retrieving the File")
 		fmt.Println(err)
@@ -46,18 +46,25 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	path := "img/" + handler.Filename
+	path := "/img/" + handler.Filename
 
 	fmt.Fprintf(w, path)
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
+	setupResponse(&w, r)
 	switch r.Method {
 	case "GET":
 		display(w, "upload", nil)
 	case "POST":
 		uploadFile(w, r)
 	}
+}
+
+func setupResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Requested-With")
 }
 
 func main() {
